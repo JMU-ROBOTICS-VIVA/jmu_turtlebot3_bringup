@@ -14,8 +14,10 @@ following issues:
 
 - Scan messages don't show up in rviz because they run ahead of tf.
     - This node delays and republishes `/scan` messages on `/scan_viz`.
-- Rviz expects `camera_info` messages on a different topic (When using Gazebo).
-     - Republish `camera/camera_info` to `camera/image_raw/camera_info`
+- Rviz expects camera info messages on a different topic (when using Gazebo), and the frame_id is incorrect .
+    - Republish `camera/image_raw` to `camera/image_raw_viz`
+    - Republish `camera/camera_info` to `camera/image_raw_viz/camera_info`
+    - `frame_id` is corrected for both
 - Turtlebot continues to obey last `cmd_vel` message forever, which can
    be awkward if a control node crashes or exits while the robot is moving.
      - Periodically check to see if no other nodes are publishing to `cmd_vel`

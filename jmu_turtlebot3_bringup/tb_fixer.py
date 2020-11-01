@@ -6,7 +6,9 @@ This node addresses some rough-edges when working with TB3 under dashing:
      - This node delays and republishes /scan messages on /scan_viz.
 
  - Rviz expects camera_info messages on a different topic (from Gazebo).
-     - Republish camera/camera_info to camera/image_raw/camera_info
+   and the frame_id is incorrect .
+     - Republish camara/image_raw to camera/image_raw_viz
+     - Republish camera/camera_info to camera/image_raw_viz/camera_info
 
  - Turtlebot continues to obey last cmd_vel message forever, which can
    be akward if a control node crashes or exits while the robot is moving.
@@ -24,6 +26,7 @@ from rclpy.qos import qos_profile_sensor_data
 from rclpy.executors import MultiThreadedExecutor
 
 from sensor_msgs.msg import CameraInfo
+from sensor_msgs.msg import Image
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
 
@@ -37,8 +40,11 @@ class TBFixNode(rclpy.node.Node):
 
         self.thrust_pub = self.create_publisher(Twist, 'cmd_vel', 10)
         self.info_pub = self.create_publisher(CameraInfo,
-                                              'camera/image_raw/camera_info',
+                                              'camera/image_raw_viz/camera_info',
                                               10)
+        self.img_pub = self.create_publisher(Image,
+                                             'camera/image_raw_viz',
+                                             10)
 
         self.scan_pub = self.create_publisher(LaserScan, 'scan_viz', 10)
 
@@ -47,6 +53,12 @@ class TBFixNode(rclpy.node.Node):
         self.create_subscription(CameraInfo,
                                  'camera/camera_info',
                                  self.info_callback,
+                                 qos_profile_sensor_data,
+                                 callback_group=group)
+
+        self.create_subscription(Image,
+                                 'camera/image_raw',
+                                 self.img_callback,
                                  qos_profile_sensor_data,
                                  callback_group=group)
 
@@ -65,14 +77,19 @@ class TBFixNode(rclpy.node.Node):
             self.thrust_pub.publish(twist)
 
     def info_callback(self, info_msg):
+        info_msg.header.frame_id = 'camera_rgb_optical_frame'
         self.info_pub.publish(info_msg)
+        
+    def img_callback(self, img_msg):
+        img_msg.header.frame_id = 'camera_rgb_optical_frame'
+        self.img_pub.publish(img_msg)
 
 
 def main(args=None):
     rclpy.init(args=args)
     node = TBFixNode()
 
-    executor = MultiThreadedExecutor(num_threads=3)
+    executor = MultiThreadedExecutor(num_threads=4)
     executor.add_node(node)
     executor.spin()
 
