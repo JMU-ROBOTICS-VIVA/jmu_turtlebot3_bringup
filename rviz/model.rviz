@@ -7,6 +7,7 @@ Panels:
         - /Global Options1
         - /Status1
         - /TF1/Frames1
+        - /Camera1
       Splitter Ratio: 0.5
     Tree Height: 549
   - Class: rviz_common/Selection
@@ -175,7 +176,7 @@ Visualization Manager:
       Name: Camera
       Overlay Alpha: 0.5
       Queue Size: 10
-      Topic: /camera/image_raw
+      Topic: /camera/image_raw_viz
       Unreliable: false
       Value: true
       Visibility:
