@@ -15,17 +15,16 @@ def generate_launch_description():
 
     return LaunchDescription([
         Node(
-            package="jmu_turtlebot3_bringup",
-            node_executable="tb_fixer",
-            node_name="tb_fixer",
-            output="screen",
-        ),
+            package='rviz2',
+            executable='rviz2',
+            name='rviz2',
+            arguments=['-d', rviz_config_dir, '--ros-args', '--remap', 'image_raw/camera_info:=camera_info'],
+            output='screen'),
         Node(
-            package="rviz2",
-            node_executable="rviz2",
-            node_name="rviz2",
-            output="screen",
-            arguments=['-d', rviz_path]
-        )
-
+            package='image_transport',
+            executable='republish',
+            name='republish',
+            arguments=['compressed', 'in/compressed:=image_raw/compressed', 'raw', 'out:=image_raw/uncompressed'],
+            output='screen'
+            )
     ])
