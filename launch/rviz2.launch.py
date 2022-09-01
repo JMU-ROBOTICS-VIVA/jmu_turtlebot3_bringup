@@ -26,7 +26,7 @@ def generate_launch_description():
 
     node_names = get_node_names()
 
-    if 'image_republisher' not in node_names:
+    if 'image_republisher' not in node_names and 'gazebo' not in node_names:
         ld.add_entity(IncludeLaunchDescription(
             PythonLaunchDescriptionSource([tb3_launch_file_dir,
                                            '/image_transport.launch.py']),
