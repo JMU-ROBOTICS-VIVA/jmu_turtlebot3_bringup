@@ -6,7 +6,7 @@ package_name = 'jmu_turtlebot3_bringup'
 
 setup(
     name=package_name,
-    version='0.0.0',
+    version='0.1.0',
     packages=[package_name],
     data_files=[
         ('share/ament_index/resource_index/packages',
@@ -25,7 +25,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'tb_fixer = jmu_turtlebot3_bringup.tb_fixer:main'
+            'safe_cmd_vel = jmu_turtlebot3_bringup.safe_cmd_vel:main'
         ],
     },
 )
