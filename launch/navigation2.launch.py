@@ -23,6 +23,7 @@ from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
+from launch.conditions import UnlessCondition
 
 import rclpy
 import rclpy.node
@@ -99,9 +100,13 @@ def generate_launch_description():
     node_names = get_node_names()
     tb3_dir = get_package_share_directory('turtlebot3_bringup')
     tb3_launch_file_dir = os.path.join(tb3_dir, 'launch')
-    if 'image_republisher' not in node_names and 'gazebo' not in node_names:
+    if 'image_republisher' not in node_names:
         ld.add_entity(IncludeLaunchDescription(
             PythonLaunchDescriptionSource([tb3_launch_file_dir,
                                            '/image_transport.launch.py']),
+            condition=UnlessCondition(LaunchConfiguration("use_sim_time"))
         ))
     return ld
+
+if __name__ == "__main__":
+    generate_launch_description()
