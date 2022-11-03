@@ -24,7 +24,19 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
+import rclpy
+import rclpy.node
+
 TURTLEBOT3_MODEL = os.environ['TURTLEBOT3_MODEL']
+
+def get_node_names():
+    """Return all active node names."""
+    rclpy.init()
+    node = rclpy.create_node('__anonymous')
+    rclpy.spin_once(node, timeout_sec=.2)
+    names = node.get_node_names()
+    node.destroy_node()
+    return names
 
 
 def generate_launch_description():
@@ -51,7 +63,7 @@ def generate_launch_description():
         'rviz',
         'nav2_default_view.rviz')
 
-    return LaunchDescription([
+    ld = LaunchDescription([
         DeclareLaunchArgument(
             'map',
             default_value=map_dir,
@@ -83,3 +95,13 @@ def generate_launch_description():
             parameters=[{'use_sim_time': use_sim_time}],
             output='screen'),
     ])
+
+    node_names = get_node_names()
+    tb3_dir = get_package_share_directory('turtlebot3_bringup')
+    tb3_launch_file_dir = os.path.join(tb3_dir, 'launch')
+    if 'image_republisher' not in node_names and 'gazebo' not in node_names:
+        ld.add_entity(IncludeLaunchDescription(
+            PythonLaunchDescriptionSource([tb3_launch_file_dir,
+                                           '/image_transport.launch.py']),
+        ))
+    return ld
